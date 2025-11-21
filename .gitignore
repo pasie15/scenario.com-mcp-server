@@ -4,3 +4,4 @@ dist
 legacy_python
 *.log
 .DS_Store
+.roo/
