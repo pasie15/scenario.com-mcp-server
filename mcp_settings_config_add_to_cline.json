@@ -1,10 +1,14 @@
 {
   "mcpServers": {
     "scenario-ai": {
-      "command": "python",
+      "command": "node",
       "args": [
-        "path/to/your/local/scenario.com-mcp-server/src/server.py"
+        "E:/My Projects/Other/MCP Servers/scenario.com-mcp-server/dist/index.js"
       ],
+      "env": {
+        "SCENARIO_API_KEY": "YOUR_API_KEY",
+        "SCENARIO_API_SECRET": "YOUR_API_SECRET"
+      },
       "disabled": false,
       "autoApprove": [],
       "alwaysAllow": []
