@@ -33,6 +33,16 @@
     "type": "git",
     "url": "git+https://github.com/pasie15/scenario.com-mcp-server.git"
   },
-  "author": "",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "scenario",
+    "scenario.com",
+    "ai",
+    "generative-ai",
+    "image-generation",
+    "model-context-protocol"
+  ],
+  "author": "pasie15",
   "license": "ISC"
 }
