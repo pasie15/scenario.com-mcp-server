@@ -17,7 +17,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.1",
+    "@modelcontextprotocol/sdk": "^1.10.0",
     "axios": "^1.6.0",
     "dotenv": "^16.4.0",
     "zod": "^3.22.0"
