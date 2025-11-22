@@ -6,3 +6,5 @@ legacy_python
 .DS_Store
 .roo/
 agent_instructions.md
+swagger (1).yaml
+.warp/
