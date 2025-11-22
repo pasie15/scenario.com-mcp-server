@@ -5,3 +5,4 @@ legacy_python
 *.log
 .DS_Store
 .roo/
+agent_instructions.md
