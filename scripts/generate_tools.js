@@ -20,7 +20,9 @@ function resolveRef(ref) {
 }
 
 function resolveSchema(schema, visited = new Set()) {
-    if (!schema) return { type: 'any' };
+    // If schema is missing, fall back to a generic string type instead of "any",
+    // because downstream tool consumers (e.g. Gemini) do not accept "any".
+    if (!schema) return { type: 'string' };
     
     if (schema.$ref) {
         if (visited.has(schema.$ref)) return { type: 'object' };
@@ -49,8 +51,15 @@ function resolveSchema(schema, visited = new Set()) {
         };
     }
 
+    // Normalize unsupported primitive types
+    let rawType = schema.type || 'string';
+    if (rawType === 'any') {
+        // "any" is not valid JSON Schema; use string as a safe, permissive fallback
+        rawType = 'string';
+    }
+
     return {
-        type: schema.type || 'string',
+        type: rawType,
         description: schema.description,
         enum: schema.enum
     };

@@ -3714,7 +3714,7 @@ export const tools: Tool[] = [
                 "bbox": {
                     "type": "array",
                     "items": {
-                        "type": "any"
+                        "type": "string"
                     }
                 },
                 "backgroundOpacity": {
@@ -3738,7 +3738,7 @@ export const tools: Tool[] = [
                     "items": {
                         "type": "array",
                         "items": {
-                            "type": "any"
+                            "type": "string"
                         }
                     }
                 },
