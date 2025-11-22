@@ -41,6 +41,25 @@ SCENARIO_API_SECRET=your_api_secret
 
 ## Usage
 
+### Running via npx
+
+You can run the server directly without installation using `npx`:
+
+```json
+{
+  "mcpServers": {
+    "scenario": {
+      "command": "npx",
+      "args": ["-y", "scenario.com-mcp-server"],
+      "env": {
+        "SCENARIO_API_KEY": "your_key",
+        "SCENARIO_API_SECRET": "your_secret"
+      }
+    }
+  }
+}
+```
+
 ### Running Locally (Stdio)
 
 To use this server with an MCP client (like Claude Desktop or Cline):
