@@ -1,44 +1,31 @@
 # Scenario.com MCP Server
 
-This is a Model Context Protocol (MCP) server for the Scenario.com API.
-It provides comprehensive access to Scenario's generative AI tools, including text-to-image, image-to-image, inpainting, controlnet, model training, and asset management.
-
-## Features
-
-- **Complete API Coverage**: Wraps over 100 API endpoints from Scenario.com.
-- **Generative Tools**: Create images, upscale, remove backgrounds, train models, and more.
-- **Asset Management**: List, delete, and manage assets and collections.
+MCP server providing access to Scenario.com's generative AI API - text-to-image, image-to-image, model training, upscaling, and 70+ other tools.
 
 ## Installation
 
-### Prerequisites
+Add to your MCP client config:
 
-- Node.js (v18 or higher)
-- A Scenario.com API Key and Secret (Get them from your [Scenario Dashboard](https://app.scenario.com/))
+```json
+{
+  "mcpServers": {
+    "scenario": {
+      "command": "npx",
+      "args": ["-y", "scenario.com-mcp-server"],
+      "env": {
+        "SCENARIO_API_KEY": "your_api_key_here",
+        "SCENARIO_API_SECRET": "your_api_secret_here"
+      }
+    }
+  }
+}
+```
 
-### Install from Source
+Get your API credentials from [https://app.scenario.com/](https://app.scenario.com/) → Settings → API Keys
 
-1. Clone the repository.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Build the server:
-   ```bash
-   npm run build
-   ```
+## Alternative: Session-based Credentials
 
-## Configuration
-
-**No configuration needed!** 
-
-Just install and run. You'll configure credentials once per session using the `set-credentials` tool (see Usage below).
-
-## Usage
-
-### Quick Start (Recommended)
-
-**Step 1:** Add to your MCP client config:
+Don't want to use env vars? Just use:
 
 ```json
 {
@@ -51,74 +38,36 @@ Just install and run. You'll configure credentials once per session using the `s
 }
 ```
 
-**Step 2:** In your MCP client (Claude, Cline, etc.), run the setup:
-
+Then in your MCP client:
 ```
-Use the set-credentials tool with my Scenario.com API key and secret:
-API Key: api_your_actual_key_here
-API Secret: your_actual_secret_here
+Use set-credentials with API key api_xxx and secret yyy
 ```
 
-**That's it!** Credentials are stored for the session. You only need to do this once per session.
+## Available Tools
 
-### Alternative: Environment Variables (Optional)
+**Setup:**
+- `set-credentials` - Configure API access for session
+- `get-credentials-status` - Check credential status
 
-You can still use environment variables if you prefer:
+**Image Generation:**
+- `post-txt2img-inferences` - Generate from text
+- `post-img2img-inferences` - Generate from image
+- `post-controlnet-inferences` - ControlNet generation
+- `post-inpaint-inferences` - Inpainting
+- `post-upscale-inferences` - Upscale images
+- `post-remove-background-inferences` - Remove backgrounds
 
-```json
-{
-  "mcpServers": {
-    "scenario": {
-      "command": "npx",
-      "args": ["-y", "scenario.com-mcp-server"],
-      "env": {
-        "SCENARIO_API_KEY": "your_key",
-        "SCENARIO_API_SECRET": "your_secret"
-      }
-    }
-  }
-}
-```
+**Asset Management:**
+- `get-assets` - List assets
+- `delete-asset` - Delete assets
+- `get-models` - List models
 
-**But this is optional** - the session-based approach (using `set-credentials`) is simpler and works around MCP client bugs.
+**Model Training:**
+- `post-models` - Create model
+- `put-models-train-by-model-id` - Train model
+- `post-models-training-images-by-model-id` - Add training images
 
-### Running Locally
-
-```json
-{
-  "mcpServers": {
-    "scenario": {
-      "command": "node",
-      "args": ["/path/to/scenario.com-mcp-server/dist/index.js"]
-    }
-  }
-}
-```
-
-Then use `set-credentials` tool in your MCP client to configure API access.
-
-## Tools
-
-### Setup Tools
-
-- **`set-credentials`**: Configure your API credentials (call this first!)
-- **`get-credentials-status`**: Check if credentials are configured
-
-### Generation Tools
-
-- `post-txt2img-inferences`: Generate images from text
-- `post-img2img-inferences`: Generate images from an image
-- `post-remove-background-inferences`: Remove background from an image
-- `post-upscale-inferences`: Upscale images
-- And 70+ more tools for model training, asset management, and more!
-
-(See `src/generated-tools.ts` or use the `list_tools` MCP capability to see the full list.)
-
-## Development
-
-- **Re-generate Tools**: If the Swagger file changes, run `node scripts/generate_tools.js` to update `src/generated-tools.ts`.
-- **Build**: `npm run build`
-- **Watch**: `npm run watch`
+...and 60+ more tools. Use `list_tools` to see all.
 
 ## License
 
