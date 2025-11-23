@@ -1,18 +1,29 @@
 
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 import axios from "axios";
-import * as dotenv from "dotenv";
-
-dotenv.config();
 
 const BASE_URL = "https://api.cloud.scenario.com/v1";
 
+// Session-based credential storage
+let sessionCredentials: { key: string; secret: string } | null = null;
+
 function getAuthHeaders() {
-    const key = process.env.SCENARIO_API_KEY;
-    const secret = process.env.SCENARIO_API_SECRET;
+    // Try session credentials first
+    let key = sessionCredentials?.key;
+    let secret = sessionCredentials?.secret;
+    
+    // Fall back to env vars if session not set (backwards compatibility)
     if (!key || !secret) {
-        throw new Error("Missing SCENARIO_API_KEY or SCENARIO_API_SECRET");
+        key = process.env.SCENARIO_API_KEY;
+        secret = process.env.SCENARIO_API_SECRET;
     }
+    
+    if (!key || !secret) {
+        throw new Error(
+            "Credentials not configured. Please use the 'set-credentials' tool first, or set SCENARIO_API_KEY and SCENARIO_API_SECRET environment variables."
+        );
+    }
+    
     const authString = Buffer.from(`${key}:${secret}`).toString('base64');
     return {
         "Authorization": `Basic ${authString}`,
@@ -22,8 +33,26 @@ function getAuthHeaders() {
 
 export const tools: Tool[] = [
     {
-        "name": "diagnose-credentials",
-        "description": "Diagnostic tool to check if API credentials are configured correctly. Returns status without exposing actual credential values.",
+        "name": "set-credentials",
+        "description": "Configure your Scenario.com API credentials for this session. You MUST call this tool first before using any other Scenario tools. Get your credentials from https://app.scenario.com/ (Settings → API Keys).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "api_key": {
+                    "type": "string",
+                    "description": "Your Scenario.com API Key (starts with 'api_')"
+                },
+                "api_secret": {
+                    "type": "string",
+                    "description": "Your Scenario.com API Secret"
+                }
+            },
+            "required": ["api_key", "api_secret"]
+        }
+    },
+    {
+        "name": "get-credentials-status",
+        "description": "Check if credentials are configured for this session (does not expose actual values).",
         "inputSchema": {
             "type": "object",
             "properties": {},
@@ -6437,6 +6466,57 @@ export const tools: Tool[] = [
 export async function handleToolCall(name: string, args: any) {
     try {
         switch (name) {
+            
+            case "set-credentials": {
+                const { api_key, api_secret } = args;
+                
+                if (!api_key || !api_secret) {
+                    return {
+                        content: [{ type: "text", text: "Error: Both api_key and api_secret are required" }],
+                        isError: true
+                    };
+                }
+                
+                // Validate format
+                if (!api_key.startsWith('api_')) {
+                    return {
+                        content: [{ type: "text", text: "Warning: API key should start with 'api_'. Please verify your credentials are correct." }],
+                        isError: false
+                    };
+                }
+                
+                // Store credentials in session
+                sessionCredentials = {
+                    key: api_key,
+                    secret: api_secret
+                };
+                
+                return {
+                    content: [{ 
+                        type: "text", 
+                        text: `✅ Credentials configured successfully!\n\nAPI Key: ${api_key.substring(0, 8)}...\nAPI Secret: ${api_secret.substring(0, 4)}...\n\nYou can now use all Scenario.com tools.` 
+                    }]
+                };
+            }
+            
+            case "get-credentials-status": {
+                const hasSessionCreds = !!sessionCredentials;
+                const hasEnvCreds = !!(process.env.SCENARIO_API_KEY && process.env.SCENARIO_API_SECRET);
+                
+                const status = {
+                    configured: hasSessionCreds || hasEnvCreds,
+                    source: hasSessionCreds ? "session (set-credentials tool)" : hasEnvCreds ? "environment variables" : "not configured",
+                    api_key_preview: hasSessionCreds 
+                        ? sessionCredentials!.key.substring(0, 8) + "..."
+                        : hasEnvCreds
+                        ? process.env.SCENARIO_API_KEY!.substring(0, 8) + "..."
+                        : "NOT SET"
+                };
+                
+                return {
+                    content: [{ type: "text", text: JSON.stringify(status, null, 2) }]
+                };
+            }
             
             case "diagnose-credentials": {
                 const key = process.env.SCENARIO_API_KEY;

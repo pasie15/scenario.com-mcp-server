@@ -30,20 +30,40 @@ It provides comprehensive access to Scenario's generative AI tools, including te
 
 ## Configuration
 
-You must provide your Scenario API credentials via environment variables.
+**No configuration needed!** 
 
-Create a `.env` file in the root directory (or ensure these are set in your environment):
-
-```env
-SCENARIO_API_KEY=your_api_key
-SCENARIO_API_SECRET=your_api_secret
-```
+Just install and run. You'll configure credentials once per session using the `set-credentials` tool (see Usage below).
 
 ## Usage
 
-### Running via npx
+### Quick Start (Recommended)
 
-You can run the server directly without installation using `npx`:
+**Step 1:** Add to your MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "scenario": {
+      "command": "npx",
+      "args": ["-y", "scenario.com-mcp-server"]
+    }
+  }
+}
+```
+
+**Step 2:** In your MCP client (Claude, Cline, etc.), run the setup:
+
+```
+Use the set-credentials tool with my Scenario.com API key and secret:
+API Key: api_your_actual_key_here
+API Secret: your_actual_secret_here
+```
+
+**That's it!** Credentials are stored for the session. You only need to do this once per session.
+
+### Alternative: Environment Variables (Optional)
+
+You can still use environment variables if you prefer:
 
 ```json
 {
@@ -60,37 +80,37 @@ You can run the server directly without installation using `npx`:
 }
 ```
 
-### Running Locally (Stdio)
+**But this is optional** - the session-based approach (using `set-credentials`) is simpler and works around MCP client bugs.
 
-To use this server with an MCP client (like Claude Desktop or Cline):
-
-Add the following to your MCP settings file:
+### Running Locally
 
 ```json
 {
   "mcpServers": {
     "scenario": {
       "command": "node",
-      "args": ["/path/to/scenario.com-mcp-server/dist/index.js"],
-      "env": {
-        "SCENARIO_API_KEY": "your_key",
-        "SCENARIO_API_SECRET": "your_secret"
-      }
+      "args": ["/path/to/scenario.com-mcp-server/dist/index.js"]
     }
   }
 }
 ```
 
+Then use `set-credentials` tool in your MCP client to configure API access.
+
 ## Tools
 
-This server exposes tools for almost every operation in the Scenario API. 
-Common tools include:
+### Setup Tools
 
-- `post-txt2img-inferences`: Generate images from text.
-- `post-img2img-inferences`: Generate images from an image.
-- `post-remove-background-inferences`: Remove background from an image.
-- `get-assets`: List your generated assets.
-- `get-models`: List available models.
+- **`set-credentials`**: Configure your API credentials (call this first!)
+- **`get-credentials-status`**: Check if credentials are configured
+
+### Generation Tools
+
+- `post-txt2img-inferences`: Generate images from text
+- `post-img2img-inferences`: Generate images from an image
+- `post-remove-background-inferences`: Remove background from an image
+- `post-upscale-inferences`: Upscale images
+- And 70+ more tools for model training, asset management, and more!
 
 (See `src/generated-tools.ts` or use the `list_tools` MCP capability to see the full list.)
 
