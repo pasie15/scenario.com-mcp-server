@@ -22,6 +22,15 @@ function getAuthHeaders() {
 
 export const tools: Tool[] = [
     {
+        "name": "diagnose-credentials",
+        "description": "Diagnostic tool to check if API credentials are configured correctly. Returns status without exposing actual credential values.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    },
+    {
         "name": "get-assets",
         "description": "List assets of a project team, or list all public assets",
         "inputSchema": {
@@ -6428,6 +6437,45 @@ export const tools: Tool[] = [
 export async function handleToolCall(name: string, args: any) {
     try {
         switch (name) {
+            
+            case "diagnose-credentials": {
+                const key = process.env.SCENARIO_API_KEY;
+                const secret = process.env.SCENARIO_API_SECRET;
+                
+                const diagnosis = {
+                    credentials_status: {
+                        api_key: {
+                            present: !!key,
+                            length: key?.length || 0,
+                            starts_with: key ? key.substring(0, 4) + '...' : 'NOT SET',
+                            is_placeholder: key === 'your_key' || key === 'your_api_key'
+                        },
+                        api_secret: {
+                            present: !!secret,
+                            length: secret?.length || 0,
+                            starts_with: secret ? secret.substring(0, 4) + '...' : 'NOT SET',
+                            is_placeholder: secret === 'your_secret' || secret === 'your_api_secret'
+                        }
+                    },
+                    environment: {
+                        node_version: process.version,
+                        platform: process.platform,
+                        cwd: process.cwd()
+                    },
+                    verdict: (() => {
+                        if (!key || !secret) return 'FAILED: Missing credentials in environment variables';
+                        if (key === 'your_key' || key === 'your_api_key') return 'FAILED: Using placeholder API key - replace with real credentials';
+                        if (secret === 'your_secret' || secret === 'your_api_secret') return 'FAILED: Using placeholder API secret - replace with real credentials';
+                        if (key.length < 20) return 'WARNING: API key seems too short';
+                        if (secret.length < 20) return 'WARNING: API secret seems too short';
+                        return 'PASSED: Credentials appear to be configured correctly';
+                    })()
+                };
+                
+                return {
+                    content: [{ type: "text", text: JSON.stringify(diagnosis, null, 2) }]
+                };
+            }
             
             case "get-assets": {
                 const url = `${BASE_URL}/assets`;
