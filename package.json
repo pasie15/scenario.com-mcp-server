@@ -1,6 +1,6 @@
 {
   "name": "scenario.com-mcp-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "MCP server for Scenario.com API",
   "type": "module",
   "main": "dist/index.js",
