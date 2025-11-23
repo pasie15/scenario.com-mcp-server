@@ -6426,14 +6426,15 @@ export const tools: Tool[] = [
 ];
 
 export async function handleToolCall(name: string, args: any) {
-    switch (name) {
-        
-        case "get-assets": {
-            const url = `${BASE_URL}/assets`;
-            const params: any = {};
-            const data: any = {};
+    try {
+        switch (name) {
             
-            if (args['updatedBefore'] !== undefined) params['updatedBefore'] = args['updatedBefore'];
+            case "get-assets": {
+                const url = `${BASE_URL}/assets`;
+                const params: any = {};
+                const data: any = {};
+                
+                if (args['updatedBefore'] !== undefined) params['updatedBefore'] = args['updatedBefore'];
 if (args['sortDirection'] !== undefined) params['sortDirection'] = args['sortDirection'];
 if (args['privacy'] !== undefined) params['privacy'] = args['privacy'];
 if (args['inferenceId'] !== undefined) params['inferenceId'] = args['inferenceId'];
@@ -6453,18 +6454,18 @@ if (args['tags'] !== undefined) params['tags'] = args['tags'];
 if (args['types'] !== undefined) params['types'] = args['types'];
 if (args['collectionId'] !== undefined) params['collectionId'] = args['collectionId'];
 
-            
-            
-            const response = await axios({
-                method: "get",
-                url: url,
-                headers: getAuthHeaders(),
-                params: params,
-                data: data
-            });
-            return {
-                content: [{ type: "text", text: JSON.stringify(response.data, null, 2) }]
-            };
+                
+                
+                const response = await axios({
+                    method: "get",
+                    url: url,
+                    headers: getAuthHeaders(),
+                    params: params,
+                    data: data
+                });
+                return {
+                    content: [{ type: "text", text: JSON.stringify(response.data, null, 2) }]
+                };
         }
 
         case "post-asset": {
@@ -9378,7 +9379,30 @@ if (args['description'] !== undefined) data['description'] = args['description']
                 content: [{ type: "text", text: JSON.stringify(response.data, null, 2) }]
             };
         }
-        default:
-            throw new Error(`Unknown tool: ${name}`);
+            default:
+                throw new Error(`Unknown tool: ${name}`);
+        }
+    } catch (error: any) {
+        if (error.response) {
+            // Axios error with response
+            const errorMessage = error.response.data?.reason || error.response.data?.message || JSON.stringify(error.response.data);
+            return {
+                content: [{ 
+                    type: "text", 
+                    text: `API Error (${error.response.status}): ${errorMessage}\n\nRequest: ${error.config?.method?.toUpperCase()} ${error.config?.url}` 
+                }],
+                isError: true
+            };
+        } else if (error.message) {
+            // Other errors
+            return {
+                content: [{ type: "text", text: `Error: ${error.message}` }],
+                isError: true
+            };
+        }
+        return {
+            content: [{ type: "text", text: `Unknown error: ${JSON.stringify(error)}` }],
+            isError: true
+        };
     }
 }
